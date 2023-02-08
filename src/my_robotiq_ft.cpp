@@ -99,14 +99,27 @@ void setup_robotiq() {
 }
 
 int main(int argc, char** argv) {
-    const std::string node_name = "ftsensor";
-    const std::string frame_id = "ftsensorframe";
-    const int queue_size = 10;
+    const std::string pub_topic_param = "/ftsensor_node_name";
+    const std::string sensor_frame_id_param = "/ftsensor_frame";
 
     setup_robotiq();
 
     ros::init(argc, argv, "my_robotiq_ft");
     ros::NodeHandle ros_node;
+
+    std::string node_name;
+    std::string frame_id;
+    const int queue_size = 10;
+
+    if (!ros_node.getParam(pub_topic_param, node_name)) {
+        ROS_ERROR_STREAM(pub_topic_param << " not found in parameter server!\n");
+        return -1;
+    }
+    if (!ros_node.getParam(sensor_frame_id_param, frame_id)) {
+        ROS_ERROR_STREAM(sensor_frame_id_param << " not found in parameter server!\n");
+        return -1;
+    }
+
     ros::Publisher sensor_pub = ros_node.advertise<geometry_msgs::WrenchStamped>(node_name, queue_size);
 
     ROS_DEBUG_STREAM("ready!\n");
